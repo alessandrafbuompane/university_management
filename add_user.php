@@ -1,45 +1,72 @@
 <?php
-// add_user.php
-session_start();
+// Include the database configuration file
 include 'config.php';
 
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    // If not logged in, redirect to the login page
-    header("Location: login.php");
-    exit();
-}
-
-// If the form is submitted, add a new user
+// Check if the form has been submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get data from the form
     $username = $_POST['username'];
     $password = $_POST['password'];
     $role = $_POST['role'];
 
-    // Hash the password
+    // Hash the password for security
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // Query to insert the new user
-    $sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sss", $username, $hashed_password, $role);
+    // Check if the username already exists in the database
+    $check_query = "SELECT * FROM users WHERE username = ?";
+    $stmt_check = $conn->prepare($check_query);
+    $stmt_check->bind_param("s", $username);
+    $stmt_check->execute();
+    $result = $stmt_check->get_result();
 
-    if ($stmt->execute()) {
-        echo "User added successfully!";
+    if ($result->num_rows > 0) {
+        // If the username already exists, show an error message
+        echo "Username already taken, please choose another!";
     } else {
-        echo "Error adding the user!";
+        // Query to insert a new user
+        $sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sss", $username, $hashed_password, $role);
+
+        if ($stmt->execute()) {
+            // User successfully added
+            echo "User added successfully! Redirecting to login page...";
+            // Redirect to the login page after 3 seconds
+            header("Refresh: 3; url=login.php");
+            exit();
+        } else {
+            // Error adding the user
+            echo "Error adding the user!";
+        }
     }
 }
 ?>
 
 <!-- Form to add a new user -->
-<form method="POST" action="add_user.php">
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <select name="role">
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-        <option value="admin">Administrator</option>
-    </select>
-    <button type="submit">Add User</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New User</title>
+</head>
+<body>
+    <h2>Add New User</h2>
+    <form action="add_user.php" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
+        <label for="role">Role:</label>
+        <select id="role" name="role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Administrator</option>
+        </select><br><br>
+        
+        <input type="submit" value="Add User">
+    </form>
+</body>
+</html>
