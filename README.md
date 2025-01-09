@@ -1,4 +1,3 @@
-
 # University Management System
 
 A web-based university management system to manage students, teachers, courses, and activities. Built with PHP, MySQL, and HTML.
@@ -6,12 +5,10 @@ A web-based university management system to manage students, teachers, courses, 
 ## Technologies Used
 - PHP
 - MySQL
-- HTML/CSS
-- JavaScript (optional)
+- HTML
 
 ## Installation
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/university-management.git
->>>>>>> a8f4e67 (Added README.md file)
+   git clone https://github.com/alessandrafbuompane/university_management.git
